@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShopEasy - E-commerce</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .product-card { transition: all 0.3s; }
+    .product-card:hover { transform: translateY(-10px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
+  </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+  <!-- Navbar -->
+  <nav class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      <h1 class="text-3xl font-bold text-black">ShopEasy</h1>
+      <div class="flex gap-8 items-center">
+        <a href="#" onclick="showPage('home')" class="hover:text-black">Home</a>
+        <a href="#" onclick="showPage('shop')" class="hover:text-black">Shop</a>
+        <a href="#" onclick="showPage('cart')" class="flex items-center gap-2">
+          Cart <span id="cart-count" class="bg-black text-white text-xs rounded-full px-2 py-1">0</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Home Page -->
+  <div id="home-page" class="page">
+    <div class="bg-black text-white py-24 text-center">
+      <h2 class="text-6xl font-bold mb-4">Summer Sale</h2>
+      <p class="text-2xl">Up to 50% Off on All Products</p>
+      <button onclick="showPage('shop')" class="mt-8 bg-white text-black px-10 py-4 rounded-full text-lg font-medium">Shop Now</button>
+    </div>
+  </div>
+
+  <!-- Shop Page -->
+  <div id="shop-page" class="page hidden max-w-7xl mx-auto px-6 py-12">
+    <h2 class="text-4xl font-bold mb-8">Our Products</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="products-grid"></div>
+  </div>
+
+  <!-- Cart Page -->
+  <div id="cart-page" class="page hidden max-w-4xl mx-auto px-6 py-12">
+    <h2 class="text-4xl font-bold mb-8">Your Cart</h2>
+    <div id="cart-items" class="space-y-6"></div>
+    <div class="mt-12 border-t pt-8 flex justify-between text-3xl font-bold">
+      <span>Total:</span>
+      <span id="cart-total">$0</span>
+    </div>
+    <button onclick="checkout()" class="mt-8 w-full bg-black text-white py-5 rounded-2xl text-xl">Proceed to Checkout</button>
+  </div>
+
+  <script>
+    let cart = [];
+
+    const products = [
+      { id: 1, name: "Wireless Headphones", price: 79, img: "https://picsum.photos/id/20/400/300" },
+      { id: 2, name: "Smart Watch", price: 129, img: "https://picsum.photos/id/201/400/300" },
+      { id: 3, name: "Laptop Backpack", price: 49, img: "https://picsum.photos/id/133/400/300" },
+      { id: 4, name: "LED Desk Lamp", price: 39, img: "https://picsum.photos/id/106/400/300" },
+      { id: 5, name: "Minimalist Watch", price: 89, img: "https://picsum.photos/id/180/400/300" },
+      { id: 6, name: "Wireless Mouse", price: 29, img: "https://picsum.photos/id/251/400/300" }
+    ];
+
+    function renderProducts() {
+      const container = document.getElementById('products-grid');
+      container.innerHTML = products.map(product => `
+        <div class="product-card bg-white rounded-2xl overflow-hidden shadow-sm">
+          <img src="${product.img}" class="w-full h-56 object-cover">
+          <div class="p-6">
+            <h3 class="font-semibold text-xl">${product.name}</h3>
+            <p class="text-3xl font-bold mt-4">$${product.price}</p>
+            <button onclick="addToCart(${product.id})" class="mt-6 w-full bg-black text-white py-4 rounded-xl hover:bg-gray-800">
+              Add to Cart
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function addToCart(id) {
+      const product = products.find(p => p.id === id);
+      cart.push(product);
+      updateCartCount();
+      alert(`${product.name} added to cart!`);
+    }
+
+    function updateCartCount() {
+      document.getElementById('cart-count').textContent = cart.length;
+    }
+
+    function showCart() {
+      const container = document.getElementById('cart-items');
+      container.innerHTML = cart.map((item, index) => `
+        <div class="flex gap-6 bg-white p-6 rounded-2xl">
+          <img src="${item.img}" class="w-28 h-28 object-cover rounded-xl">
+          <div class="flex-1">
+            <h4 class="font-semibold">${item.name}</h4>
+            <p class="text-2xl font-bold mt-2">$${item.price}</p>
+            <button onclick="removeFromCart(${index})" class="text-red-500 mt-4">Remove</button>
+          </div>
+        </div>
+      `).join('');
+
+      const total = cart.reduce((sum, item) => sum + item.price, 0);
+      document.getElementById('cart-total').textContent = `$${total}`;
+    }
+
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      updateCartCount();
+      showCart();
+    }
+
+    function checkout() {
+      if (cart.length === 0) return alert("Cart is empty!");
+      alert("🎉 Thank you for your purchase! (Demo)");
+      cart = [];
+      updateCartCount();
+      showPage('shop');
+    }
+
+    function showPage(page) {
+      document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+      document.getElementById(page + '-page').classList.remove('hidden');
+      
+      if (page === 'cart') showCart();
+      if (page === 'shop') renderProducts();
+    }
+
+    // Initialize
+    renderProducts();
+    showPage('home');
+  </script>
+</body>
+</html>
